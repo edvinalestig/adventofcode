@@ -1,0 +1,1 @@
+[("dairy",["krjn","mxkh","sp","bpbdlmg"]),("fish",["sp","gkcqxs"]),("wheat",["tdbcfb","sp","gkcqxs"]),("shellfish",["krjn","gkcqxs"]),("sesame",["rgc","bpbdlmg"]),("nuts",["bvh","bpbdlmg"]),("soy",["sp","bpbdlmg"]),("peanuts",["sp"])]
