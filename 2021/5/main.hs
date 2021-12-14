@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 import Data.List.Split (splitOn)
 import Data.List (nub)
 
@@ -5,7 +6,7 @@ main :: IO ()
 main = do
     input <- readFile "input.txt"
     let instructions = lines input 
-    let coords = map (map (\x -> map (read) $ splitOn "," x)) $ map (splitOn " -> ") instructions :: [[[Int]]]
+    let coords = map (map (map read . splitOn ",") . splitOn " -> ") instructions :: [[[Int]]]
     
     print "Part 1"
     print $ part1 $ filterDiagonal coords
@@ -19,18 +20,18 @@ filterDiagonal :: [[[Int]]] -> [[[Int]]]
 filterDiagonal [] = []
 filterDiagonal ([[x1,y1],[x2,y2]]:rest) 
     | x1 /= x2 && y1 /= y2 = filterDiagonal rest
-    | otherwise = [[x1,y1],[x2,y2]]:(filterDiagonal rest)
+    | otherwise = [[x1,y1],[x2,y2]]:filterDiagonal rest
 
 between :: Int -> Int -> Int -> Bool
-between val start end = (min start end) <= val && (max start end) >= val
+between val start end = min start end <= val && max start end >= val
 
 same :: Int -> Int -> Int -> Int -> Bool
 same p1 p2 p3 p4 = p1 == p2 && p2 == p3 && p3 == p4
 
 overlap :: Int -> Int -> Int -> Int -> [Int]
 overlap p1 p2 p3 p4 
-    | (between p3 p1 p2) && (between p4 p1 p2) = [(min p3 p4)..(max p3 p4)]
-    | (between p1 p3 p4) && (between p2 p3 p4) = [(min p1 p2)..(max p1 p2)]
+    | between p3 p1 p2 && between p4 p1 p2 = [(min p3 p4)..(max p3 p4)]
+    | between p1 p3 p4 && between p2 p3 p4 = [(min p1 p2)..(max p1 p2)]
     | p3 >  p4 && between p3 p1 p2 = [(min p1 p2)..p3]
     | p3 <= p4 && between p3 p1 p2 = [p3..(max p1 p2)]
     | p3 >  p4 && between p4 p1 p2 = [p4..(max p1 p2)]
@@ -41,12 +42,12 @@ diagonal [[x1,y1],[x2,y2]] = x1 /= x2 && y1 /= y2
 
 compareLines :: [[Int]] -> [[Int]] -> [(Int,Int)]
 compareLines [[x1,y1],[x2,y2]] [[x3,y3], [x4,y4]]
-    | not $ (between x3 x1 x2) || (between x4 x1 x2) || (between x1 x3 x4) || (between x2 x3 x4) = [] -- No overlap
-    | not $ (between y3 y1 y2) || (between y4 y1 y2) || (between y1 y3 y4) || (between y2 y3 y4) = [] -- No overlap
-    | (diagonal [[x1,y1],[x2,y2]]) && (diagonal [[x3,y3], [x4,y4]]) = compareDiagonal [[x1,y1],[x2,y2]] [[x3,y3], [x4,y4]]
-    | (diagonal [[x1,y1],[x2,y2]]) || (diagonal [[x3,y3], [x4,y4]]) = compareStraightDiagonal [[x1,y1],[x2,y2]] [[x3,y3], [x4,y4]]
-    | same y1 y2 y3 y4 = [(x,y1) | x <- (overlap x1 x2 x3 x4)] -- Both horizontal, calculate x-overlap
-    | same x1 x2 x3 x4 = [(x1,y) | y <- (overlap y1 y2 y3 y4)] -- Both vertical, calculate y-overlap
+    | not $ between x3 x1 x2 || between x4 x1 x2 || between x1 x3 x4 || between x2 x3 x4 = [] -- No overlap
+    | not $ between y3 y1 y2 || between y4 y1 y2 || between y1 y3 y4 || between y2 y3 y4 = [] -- No overlap
+    | diagonal [[x1,y1],[x2,y2]] && diagonal [[x3,y3], [x4,y4]] = compareDiagonal [[x1,y1],[x2,y2]] [[x3,y3], [x4,y4]]
+    | diagonal [[x1,y1],[x2,y2]] || diagonal [[x3,y3], [x4,y4]] = compareStraightDiagonal [[x1,y1],[x2,y2]] [[x3,y3], [x4,y4]]
+    | same y1 y2 y3 y4 = [(x,y1) | x <- overlap x1 x2 x3 x4] -- Both horizontal, calculate x-overlap
+    | same x1 x2 x3 x4 = [(x1,y) | y <- overlap y1 y2 y3 y4] -- Both vertical, calculate y-overlap
     | x1 == x2         = [(x1,y3)] -- Crossing at (x1=x2,y3=y4)
     | y1 == y2         = [(x3,y1)] -- Crossing at (x3=x4,y1=y2)
 
@@ -63,8 +64,8 @@ compareDiagonal line1 line2
 -- y = (k1m2-k2m1)/(k1-k2)
 -- -> [x,y]
 intersection :: [[Int]] -> [[Int]] -> [Int]
-intersection line1 line2 = [((m' line2) - (m' line1)) `div` ((k' line1) - (k' line2)), 
-    ((k' line1)*(m' line2) - (k' line2)*(m' line1)) `div` ((k' line1) - (k' line2))]
+intersection line1 line2 = [(m' line2 - m' line1) `div` (k' line1 - k' line2), 
+    (k' line1 * m' line2) - (k' line2 * m' line1) `div` (k' line1 - k' line2)]
 
 overlapDiagonal :: [[Int]] -> [[Int]] -> [(Int,Int)]
 overlapDiagonal [[x1,y1],[x2,y2]] [[x3,y3], [x4,y4]] = [(x, y' [[x3,y3], [x4,y4]] x) | x <- overlap x1 x2 x3 x4]
@@ -87,13 +88,13 @@ k' [[x1,y1],[x2,y2]] = (y2-y1) `div` (x2-x1)
 
 -- m = y1 - k*x1
 m' :: [[Int]] -> Int
-m' [[x1,y1],xy2] = y1 - (k' [[x1,y1],xy2])*x1
+m' [[x1,y1],xy2] = y1 - k' [[x1,y1],xy2] * x1
 
 -- y = kx+m
 y' :: [[Int]] -> Int -> Int
-y' ln x = (k' ln) * x + (m' ln)
+y' ln x = k' ln * x + m' ln
 
 -- x = (y-m)/k
 x' :: [[Int]] -> Int -> Int
-x' ln y = (y - (m' ln)) `div` (k' ln)
+x' ln y = (y - m' ln) `div` k' ln
 

@@ -1,4 +1,4 @@
-import Data.List.Split
+import Data.List.Split ( splitOn )
 
 part1 :: [(String, Int)] -> Int
 part1 ins = run ins 0 0
@@ -22,7 +22,7 @@ run2 _                     vert hori _   = vert * hori
 main :: IO ()
 main = do
     input <- readFile "input.txt"
-    let instructions = [(dir, read steps) | k <- lines input, let (dir:steps:_) = splitOn " " k] 
+    let instructions = map ((\[d,n] -> (d,read n)) . splitOn " ") $ lines input
     print "Part 1"
     print $ part1 instructions
     print "Part 2"

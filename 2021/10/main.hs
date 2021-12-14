@@ -33,7 +33,6 @@ f (char:string) (top:stack)
     | otherwise = char
         where ct = (char,top)
 
-
 ----------------------
 
 part2 :: [String] -> Int

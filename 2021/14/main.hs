@@ -12,27 +12,21 @@ main = do
     let patterns' = map (splitOn " -> ") $ lines patterns
 
     print "Part 1"
-    -- let p1 = part1 patterns' polymer
-    -- print $ count (mostCommon p1) p1 - count (leastCommon p1) p1
-    print $ part1v2 patterns' polymer 
+    print $ part1 patterns' polymer 
     print "Part 2"
     print $ part2 patterns' polymer
 
+part1 :: [Pattern] -> String -> Int
+part1 = go 10
 
----- Bad and inefficent ----
+part2 :: [Pattern] -> String -> Int
+part2 = go 40
 
--- part1 :: [Pattern] -> String -> String
--- part1 patterns polymer = part1' patterns polymer 10
-
--- part1' :: [Pattern] -> String -> Int -> String
--- part1' _        polymer 0 = polymer
--- part1' patterns polymer i = part1' patterns (insertPolymer patterns polymer) (i-1)
-
--- -- Too inefficient for part 2 :(
--- insertPolymer :: [Pattern] -> String -> String
--- insertPolymer _ []  = []
--- insertPolymer _ [c] = [c]
--- insertPolymer patterns (c1:c2:rest) = (c1:getPoly patterns c1 c2) ++ insertPolymer patterns (c2:rest)
+-- list is [Int] with all the charcter counts. The last character in the input value has to be added manually.
+go :: Int -> [Pattern] -> String -> Int
+go n patterns polymer = maximum list - minimum list
+    where 
+        list = map snd $ convertToLetters (([last polymer], 1) : part2' patterns (createTuples polymer) n)
 
 -- Get what should be inserted between the two characters
 getPoly :: [Pattern] -> Char -> Char -> String
@@ -40,33 +34,6 @@ getPoly []           _  _  = []
 getPoly ([poly,new]:patterns) c1 c2 
     | [c1,c2] == poly = new
     | otherwise       = getPoly patterns c1 c2
-
--- count :: Eq a => a -> [a] -> Int
--- count item = length . filter (==item) 
-
-
--- -- Stolen from https://www.reddit.com/r/haskell/comments/7u1gay/finding_the_most_common_element_in_a_list/dtgvlbp/:
--- mostCommon :: String -> Char
--- mostCommon = snd . maximum . map (\xs -> (length xs, head xs)) . group . sort
-
--- leastCommon :: String -> Char
--- leastCommon = snd . minimum . map (\xs -> (length xs, head xs)) . group . sort
-
--- -- End of stolen
-
--- Run the code from part 2 instead
-part1v2 :: [Pattern] -> String -> Int
-part1v2 patterns polymer = maximum list - minimum list
-    where 
-        list = map snd $ convertToLetters (([last polymer], 1) : part2' patterns (createTuples polymer) 10)
-
----- Part 2 ----
-
--- list is [Int] with all the charcter counts. The last character in the input value has to be added manually.
-part2 :: [Pattern] -> String -> Int
-part2 patterns polymer = maximum list - minimum list
-    where 
-        list = map snd $ convertToLetters (([last polymer], 1) : part2' patterns (createTuples polymer) 40)
 
 -- Go from pairs of letters to single letters. "BN" -> "B" The second letter is the first letter in another pair.
 convertToLetters :: [(String,Int)] -> [(String,Int)]
