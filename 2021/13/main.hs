@@ -15,10 +15,10 @@ main = do
     putStrLn $ part2 (dots',folds')
 
 part1 :: ([[Int]], [(String,Int)]) -> Int
-part1 (dots,f:_) = length $ foldPage f dots
+part1 (dots,f:_) = length $ foldPage dots f
 
-foldPage :: (String,Int) -> [[Int]] -> [[Int]]
-foldPage (dir,coord) page 
+foldPage :: [[Int]] -> (String,Int) -> [[Int]]
+foldPage page (dir,coord) 
     | dir == "x" = nub $ map (fx coord) page
     | dir == "y" = nub $ map (fy coord) page
 
@@ -35,7 +35,7 @@ fy yCoord [x,y]
 ------------------
 
 part2 :: ([[Int]], [(String,Int)]) -> String
-part2 (dots,folds) = printFancy $ foldl (flip foldPage) dots folds -- \dots' f -> foldPage f dots'
+part2 (dots,folds) = printFancy $ foldl foldPage dots folds
 
 printFancy :: [[Int]] -> String
 printFancy dots = unlines [[if b then '■' else ' ' | x <- [0..38], let b = [x,y] `elem` dots] | y <- [0..5]]
