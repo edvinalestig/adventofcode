@@ -1,17 +1,15 @@
 use std::fs;
-use std::str;
-use std::vec;
 
 fn main() {
     let inputs: String = fs::read_to_string("input.txt").unwrap();
     let mut cals: Vec<i64> = vec![];
 
-    let elves = str::split(&inputs, "\n\n");
+    let elves = inputs.split("\n\n");
     for elf in elves {
-        let calories = str::split(&elf, "\n");
+        let calories = elf.lines();
         let mut sum: i64 = 0;
         for cal in calories {
-            sum += match str::parse::<i64>(&cal) {
+            sum += match cal.parse::<i64>() {
                 Ok(s) => s,
                 Err(_) => 0
             };
