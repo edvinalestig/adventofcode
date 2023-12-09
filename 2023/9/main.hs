@@ -1,0 +1,24 @@
+part1 :: IO ()
+part1 = do
+    inp <- map (map read . words) . lines <$> readFile "input.txt" :: IO [[Int]]
+    print . sum $ map oasis inp
+
+oasis :: [Int] -> Int
+oasis ns
+    | all (==0) ns = 0
+    | otherwise = last ns + oasis (diffs ns)
+
+diffs :: [Int] -> [Int]
+diffs [_]        = []
+diffs (n1:n2:ns) = n2-n1 : diffs (n2:ns)
+
+-- Part 2
+part2 :: IO ()
+part2 = do
+    inp <- map (map read . words) . lines <$> readFile "input.txt" :: IO [[Int]]
+    print . sum $ map oasis2 inp
+
+oasis2 :: [Int] -> Int
+oasis2 ns
+    | all (==0) ns = 0
+    | otherwise = head ns - oasis2 (diffs ns)
