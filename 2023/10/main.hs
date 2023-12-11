@@ -14,14 +14,14 @@ part1 = do
           | m ! (sx+1, sy) `elem` "7J-" = (sx+1, sy)
           | m ! (sx, sy+1) `elem` "JL|" = (sx, sy+1)
           | otherwise = error "Did not find path from start"
-        steps = traversePipes m start next
+        steps = length $ traversePipes m start next
     print $ steps `div` 2 + steps `rem` 2 -- Ceiling division
 
-traversePipes :: Map Coord Char -> Coord -> Coord -> Integer
+traversePipes :: Map Coord Char -> Coord -> Coord -> [Coord]
 traversePipes m old curr = do
     let newCoords = translate old curr $ m ! curr
-    if m ! newCoords == 'S' then 1 else
-        1 + traversePipes m curr newCoords
+    if m ! newCoords == 'S' then [curr] else
+        curr : traversePipes m curr newCoords
 
 translate :: Coord -> Coord -> Char -> Coord
 translate (oldx,oldy) (curx,cury) = \case
@@ -46,7 +46,7 @@ part2 = do
           | m ! (sx+1, sy) `elem` "7J-" = (sx+1, sy)
           | m ! (sx, sy+1) `elem` "JL|" = (sx, sy+1)
           | otherwise = error "Did not find path from start"
-        path = start : traversePipes2 m start next
+        path = start : traversePipes m start next
         (n,_,_,_,_) = foldr (uncurry countTiles) (0, False, 0, 0, path) $ reverse . concat $ transpose coords
     print n
 
@@ -84,9 +84,3 @@ countTiles coord@(x,y) c z@(n,inside,l,r,path) = do
                 (-1,-1,0) -> countTiles coord 'L' z
                 (1,-1,1)  -> countTiles coord 'F' z
                 (1,1,0)   -> countTiles coord '7' z
-
-traversePipes2 :: Map Coord Char -> Coord -> Coord -> [Coord]
-traversePipes2 m old curr = do
-    let newCoords = translate old curr $ m ! curr
-    if m ! newCoords == 'S' then [curr] else
-        curr : traversePipes2 m curr newCoords

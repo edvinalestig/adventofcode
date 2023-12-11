@@ -1,4 +1,3 @@
-from functools import reduce
 import re
 
 regex = re.compile("Card +([0-9]+): ([0-9 ]+) \| ([0-9 ]+)")

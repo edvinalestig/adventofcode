@@ -19,18 +19,6 @@ part1 = do
 
 ----------- Part 2 -----------
 
-part2 :: IO () -- SLOOOOOOOOOOOOOOOOOOW
-part2 = do
-    inp <- readFile "input.txt"
-    let (seeds':maps') = map unpack <$> splitOn (pack "\n\n") $ pack inp
-        (_:seeds'') = map read $ words seeds' :: [Int]
-        seeds = concatMap range $ chunksOf 2 seeds''
-        maps = map (map (map read . words) . tail . lines) maps' :: [[[Int]]]
-        locations = map (\s -> foldl mapValue s maps) seeds
-    print $ minimum locations
-    where
-        range [a,b] = [a..a+b-1]
-
 mapRange :: [[Int]] -> (Int,Int) -> [(Int,Int)]
 mapRange [] range = [range]
 mapRange ([d,s,l]:maps) (a,b)
@@ -39,8 +27,8 @@ mapRange ([d,s,l]:maps) (a,b)
     | b >= s && b < s+l = (d, d+b-s)   : mapRange maps (a, s-1) -- Underflows
     | otherwise         = mapRange maps (a, b)                  -- Uncontained
 
-part2' :: IO () -- Fast!
-part2' = do
+part2 :: IO ()
+part2 = do
     inp <- readFile "input.txt"
     let (seeds':maps') = map unpack <$> splitOn (pack "\n\n") $ pack inp
         seedRanges = map (\[a,b] -> (a,a+b-1)) . chunksOf 2 . tail . map read $ words seeds' :: [(Int, Int)]
