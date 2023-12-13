@@ -1,13 +1,12 @@
 import Data.List (intersect)
 import qualified Data.Map as M
+import Text.Regex (matchRegex, mkRegex)
 
 parse :: String -> (Int,[Int],[Int])
 parse s = do
-    let cardNum = read . last . words $ takeWhile (/=':') s :: Int
-    let next    = tail $ dropWhile (/=':') s
-    let winning = map read . words        $ takeWhile (/='|') next :: [Int]
-    let nums    = map read . words . tail $ dropWhile (/='|') next :: [Int]
-    (cardNum, winning, nums)
+    let rx = mkRegex "Card +([0-9]+): ([0-9 ]+) \\| ([0-9 ]+)"
+    let Just [cardnum,wins,mynums] = matchRegex rx s
+    (read cardnum,map read $ words wins,map read $ words mynums)
 
 main :: IO ()
 main = do
