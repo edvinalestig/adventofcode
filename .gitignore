@@ -3,3 +3,6 @@
 *.hi
 target/
 Cargo.lock
+.vs
+bin
+obj
