@@ -6,6 +6,5 @@ Cargo.lock
 .vs
 bin
 obj
-input.txt
-testinput*.txt
+*input*.txt
 *dec*.txt
